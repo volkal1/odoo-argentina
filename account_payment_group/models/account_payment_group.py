@@ -280,6 +280,14 @@ class AccountPaymentGroup(models.Model):
                     seq_date = sequence._create_date_range_seq(dt)
                 payment.next_number = seq_date.number_next_actual
 
+    @api.model
+    def create(self, vals):
+        res = super(AccountPaymentGroup, self).create(vals)
+        for rec in res:
+            if not rec.debt_move_line_ids:
+                rec.add_all()
+        return res
+
 
     @api.depends(
         # 'move_name',
