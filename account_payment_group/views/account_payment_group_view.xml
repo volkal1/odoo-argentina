@@ -113,7 +113,7 @@
 				    domain="[('partner_type', '=', partner_type)]"/>
 			    <field name="document_number" 
 				    invisible="document_sequence_id != False or localization == False"
-				    required="document_sequence_id == False and localization != False"/>
+				    required="False"/>
                         <field name="payment_date"/>
                         <field name="communication" invisible="state != 'draft' and communication == False"/>
                     </group>
