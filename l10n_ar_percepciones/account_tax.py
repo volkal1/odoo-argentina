@@ -24,6 +24,10 @@ class AccountTax(models.Model):
         if self.amount_type == 'code':
             company = self.env.company
             localdict = {'base_amount': base_amount, 'price_unit':price_unit, 'quantity': quantity, 'product':product, 'partner':partner, 'company': company, 'tax': self}
+            if self._context.get('tax_computation_context',{}):
+                for key,item in self._context.get('tax_computation_context'):
+                    localdict.update({key: item})
+
             safe_eval(self.python_compute, localdict, mode="exec", nocopy=True)
             return localdict['result']
         return super(AccountTax, self)._compute_amount(base_amount, price_unit, quantity, product, partner, fixed_multiplicator)
@@ -35,7 +39,14 @@ class AccountTax(models.Model):
             product = product.product_variant_id
         for tax in self.filtered(lambda r: r.amount_type == 'code'):
             localdict = self._context.get('tax_computation_context', {})
-            localdict.update({'price_unit': price_unit, 'quantity': quantity, 'product': product, 'partner': partner, 'company': company, 'tax': self})
+            localdict.update(
+                    {'price_unit': price_unit, 
+                     'quantity': quantity, 
+                     'product': product, 
+                     'partner': partner, 
+                     'company': company, 
+                     'tax': self}
+                    )
             safe_eval(tax.python_applicable, localdict, mode="exec", nocopy=True)
             if localdict.get('result', False):
                 taxes += tax
