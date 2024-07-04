@@ -14,6 +14,10 @@ class AccountMove(models.Model):
 
     def btn_add_percepciones(self):
         self.ensure_one()
+        if self.state not in ['draft','sent']:
+            raise ValidationError('Solo se pueden agregar/modificar impuestos en movimientos en borrador')
+        if self.move_type not in ['out_invoice','out_refund']:
+            raise ValidationError('El tipo de documento debe ser factura de cliente o nota de crédito')
         vals = {
             'move_id': self.id,
             }
@@ -42,7 +46,25 @@ class AccountMove(models.Model):
                     'amount': amount,
                     'new_tax': True,
                     }
-            line_id = self.env['percepciones.line.wizard'].create(vals_line)
+            line_id = self.env['percepciones.line.wizard'].search([('invoice_tax_id','=',wizard_id.id),('tax_id','=',perception.tax_id.id)])
+            if not line_id:
+                line_id = self.env['percepciones.line.wizard'].create(vals_line)
+        if self.partner_shipping_id:
+            for perception in self.partner_shipping_id.perception_ids:
+                if self.move_type == 'out_invoice':
+                    sign = 1
+                else:
+                    sign = -1
+                amount = self.amount_untaxed * perception.percent / 100 * sign
+                vals_line = {
+                    'invoice_tax_id': wizard_id.id,
+                    'tax_id': perception.tax_id.id,
+                    'amount': amount,
+                    'new_tax': True,
+                    }
+                line_id = self.env['percepciones.line.wizard'].search([('invoice_tax_id','=',wizard_id.id),('tax_id','=',perception.tax_id.id)])
+                if not line_id:
+                    line_id = self.env['percepciones.line.wizard'].create(vals_line)
         res = {
             'name': _('Percepciones Wizard'),
             'res_model': 'percepciones.wizard',

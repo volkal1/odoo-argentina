@@ -15,6 +15,7 @@ class AccountTax(models.Model):
     is_padron = fields.Boolean('Es padron?')
     padron_prefix= fields.Char('Prefijo padron',default='')
     all_products = fields.Boolean('Todos los productos')
+    partner_type = fields.Selection(selection=[('invoicing','Facturacion'),('delivery','Entrega')],string='Tipo de partner')
 
 
     def _compute_amount(self, base_amount, price_unit, quantity=1.0, product=None, partner=None, fixed_multiplicator=1):
