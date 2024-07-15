@@ -59,13 +59,34 @@ class AccountMove(models.Model):
                     return
                 for move_tax in self.move_tax_ids:
                     move_tax.unlink()
-                for invoice_line in self.invoice_line_ids:
-                    if invoice_line.tax_ids:
-                        for tax in invoice_line.tax_ids.ids:
-                            account_tax = self.env['account.tax'].browse(tax)
-                            move_tax_id = self.env['account.move.tax'].search([('move_id','=',self.id),('tax_id','=',tax)])
-                            if not move_tax_id:
-                                vals = {
+                if self.move_type in ['out_invoice','out_refund']:
+                    for line in self.line_ids:
+                        tax = self.env['account.tax'].search([('name','=',line.name),('type_tax_use','=','sale')])
+                        if tax:
+                            vals = {
+                                'move_id': self.id,
+                                'tax_id': tax.id,
+                                'invoice_date': self.invoice_date,
+                                'partner_id': self.partner_id.id,
+                                'l10n_latam_document_type_id': self.l10n_latam_document_type_id.id,
+                                'l10n_ar_afip_responsibility_type_id': self.partner_id.l10n_ar_afip_responsibility_type_id.id,
+                                'state_id': self.partner_id.state_id.id,
+                                'move_type': self.move_type,
+                                }
+                            if self.move_type == 'out_invoice':
+                                vals['tax_amount'] = line.credit
+                            else:
+                                vals['tax_amount'] = line.debit
+                            move_tax_id = self.env['account.move.tax'].create(vals)
+
+                else:
+                    for invoice_line in self.invoice_line_ids:
+                        if invoice_line.tax_ids:
+                            for tax in invoice_line.tax_ids.ids:
+                                account_tax = self.env['account.tax'].browse(tax)
+                                move_tax_id = self.env['account.move.tax'].search([('move_id','=',self.id),('tax_id','=',tax)])
+                                if not move_tax_id:
+                                    vals = {
                                         'move_id': self.id,
                                         'tax_id': tax,
                                         'invoice_date': self.invoice_date,
@@ -75,16 +96,16 @@ class AccountMove(models.Model):
                                         'state_id': self.partner_id.state_id.id,
                                         'move_type': self.move_type,
                                         }
-                                move_tax_id = self.env['account.move.tax'].create(vals)
-                            move_tax_id.base_amount = move_tax_id.base_amount + invoice_line.price_subtotal
-                            if account_tax.tax_group_id.tax_type == 'vat':
-                                move_tax_id.tax_amount = move_tax_id.tax_amount + invoice_line.price_subtotal * (account_tax.amount / 100)
-                            else:
-                                tax_amount = 0
-                                for line in self.line_ids:
-                                    if line.name == move_tax_id.tax_id.name:
-                                        tax_amount = line.debit or line.credit
-                                move_tax_id.tax_amount = move_tax_id.tax_amount + tax_amount
+                                    move_tax_id = self.env['account.move.tax'].create(vals)
+                                move_tax_id.base_amount = move_tax_id.base_amount + invoice_line.price_subtotal
+                                if account_tax.tax_group_id.tax_type == 'vat':
+                                    move_tax_id.tax_amount = move_tax_id.tax_amount + invoice_line.price_subtotal * (account_tax.amount / 100)
+                                else:
+                                    tax_amount = 0
+                                    for line in self.line_ids:
+                                        if line.name == move_tax_id.tax_id.name:
+                                            tax_amount = tax_amount + line.debit or line.credit
+                                    move_tax_id.tax_amount = move_tax_id.tax_amount + tax_amount
 
 
         move_tax_ids = fields.One2many(comodel_name='account.move.tax',inverse_name='move_id',string='Impuestos')
