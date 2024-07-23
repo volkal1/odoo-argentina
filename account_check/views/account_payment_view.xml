@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_payment_check_tree" model="ir.ui.view">
+        <field name="name">account_check.account.payment.tree</field>
+        <field name="model">account.payment</field>
+	<field name="arch" type="xml">
+		<tree>
+			<field name="check_number" />
+			<field name="partner_id" />
+			<field name="l10n_latam_check_payment_date" />
+			<field name="l10n_latam_check_bank_id" />
+			<field name="amount" />
+			<field name="currency_id" />
+		</tree>
+        </field>
+    </record>
+
+    <record id="view_account_check_payment_form" model="ir.ui.view">
+        <field name="name">account_check.account.payment.form</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="l10n_latam_check.view_account_payment_form_inherited"/>
+	<field name="arch" type="xml">
+		<field name="l10n_latam_check_id" position="attributes">
+			<attribute name="context">{'tree_view_ref': 'account_check.view_payment_check_tree','search_view_ref': 'l10n_latam_check.view_account_payment_third_party_checks_search'}</attribute>
+		</field>
+        </field>
+    </record>
+
+</odoo>
