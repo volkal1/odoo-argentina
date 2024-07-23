@@ -37,7 +37,7 @@
                 <page
                     name="customer_debt"
                     string="Deuda del Cliente"
-		    invisible="customer_rank == 0 or parent_id == False"
+		    invisible="not receivable_debt_ids"
                     groups="account.group_account_invoice"
                     >
                     <field name="receivable_debt_ids" context="{'show_balance': 1, 'hide_reconciled': 1}"/>
@@ -45,7 +45,7 @@
                 <page
                     name="supplier_debt"
                     string="Deuda con el Proveedor"
-                    invisible = "supplier_rank == 0 or is_company == False or parent_id == False"
+                    invisible = "not payable_debt_ids"
                     groups="account.group_account_invoice"
                     >
                     <field name="payable_debt_ids" context="{'show_balance': 1, 'hide_reconciled': 1}"/>
