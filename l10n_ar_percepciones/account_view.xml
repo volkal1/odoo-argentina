@@ -23,6 +23,9 @@
             <field name="inherit_id" ref="account.view_tax_form"/>
             <field name="arch" type="xml">
 		<field name="active" position="after">
+			<field name="padron_prefix" />
+			<field name="is_padron" />
+			<field name="all_products" invisible="type_tax_use != 'sale'"/>
 			<field name="partner_type" invisible="type_tax_use != 'sale'" />
 		</field>
             </field>

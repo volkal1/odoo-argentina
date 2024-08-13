@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="point_of_sale.template" xml:space="preserve">
+        
+       <t t-inherit="point_of_sale.OrderReceipt" t-inherit-mode="extension" t-name="OrderReceipt">
+        <xpath expr="//ReceiptHeader[@data='props.data.headerData']" position="after">
+                
+                <t t-if='props.data.additional_data.l10n_latam_document_number '> <!-- and
+                                props.data.env.pos.config.receipt_invoice_number-->
+                        <div class="afip-invoice-info" >
+                                <hr style="border: 1px solid"/>
+                            <strong>
+                            <t t-esc="props.data.document_type_sv?.name"/> - ORIGINAL
+                                <t t-if="props.data.document_type_sv?.l10n_ar_letter == 'A'">
+                                    - COD <t t-esc="props.data.document_type_sv?.code"/>
+                                </t>
+                                <br />
+                            N° DE FACTURA: <t t-esc="props.data.additional_data.l10n_latam_document_number"/><br />
+                            FECHA: <t t-esc="props.data.date"/>
+                        </strong>
+                            
+                        </div>
+                    </t>
+                    <t t-if='props.data.partner '> <!--
+                                and props.data.env.pos.config.receipt_customer_vat-->
+                                <hr style="border: 1px solid"/>
+                        <div class="afip-client-info" >
+                            <div>CLIENTE: <t t-esc='props.data.partner.name' /></div>
+                            <t t-if='props.data.partner.l10n_latam_identification_type_id?.[1] != "Sigd"'>
+                                <t t-if="props.data.partner.l10n_latam_identification_type_id">
+                                    <t t-esc='props.data.partner.l10n_latam_identification_type_id[1]' />:
+                                </t>
+                                <t t-if="props.data.partner.vat">
+                                    <t t-esc='props.data.partner.vat' />
+                                </t>
+                                <t t-if="props.data.partner.l10n_ar_afip_responsibility_type_id">
+                                    <div><t t-esc='props.data.partner.l10n_ar_afip_responsibility_type_id[1]' /></div>
+                                </t>
+                            </t>
+                            <t t-if="props.data.partner.street">
+                                <div>
+                                    CALLE: <t t-esc="props.data.partner.street"/>
+                                    <t t-if="props.data.partner.city">
+                                        , <t t-esc="props.data.partner.city"/>
+                                    </t>
+                                    <t t-if="props.data.partner.state_id">
+                                        , <t t-esc="props.data.partner.state_id[1]"/>
+                                    </t>
+                                    <t t-if="props.data.partner.country_id">
+                                        , <t t-esc="props.data.partner.country_id[1]"/>
+                                    </t>
+                                </div>
+                                <t t-if="props.data.partner.email">
+                                    <div>Email: <t t-esc="props.data.partner.email"/></div>
+                                </t>
+                                <t t-if="props.data.partner.phone or props.data.partner.mobile">
+                                    <div>Tel: <t t-esc="props.data.partner.phone || props.data.partner.mobile"/></div>
+                                </t>
+                                <t t-if="props.data.partner.website">
+                                    <div>Website: <t t-esc="props.data.partner.website"/></div>
+                                </t>
+                            </t>
+                        </div>
+                    </t>
+                    <t t-if='props.data.cashier'>
+                        <div class='cashier'>
+                                <hr style="border: 1px solid"/>
+                            <div>Servido por <t t-esc='props.data.cashier' /></div>
+                        </div>
+                    </t>
+                    <hr style="border: 1px solid"/>
+                        <strong>
+                        <div>DESCRIPCIÓN</div>
+                        <div >
+                            CANT. x PRECIO UNIT.
+                            <span class="price_display pos-receipt-right-align">
+                            IMPORTE
+                            </span>
+                        </div>
+                        </strong>
+                        <hr style="border: 1px solid"/>
+        </xpath>
+
+                <xpath expr="//div[hasclass('before-footer')]" position="after">
+                        <t t-if="props.data.l10n_ar_afip_auth_code">
+                                
+                                <div class="afip-cae-info" style="text-align: center; font-size: 75%;">
+                                        <t t-if="props.data.l10n_ar_afip_qr_image">
+                                                <div style="overflow: hidden;">
+                                                        <img t-att-src="props.data.l10n_ar_afip_qr_image" alt="QR Code" style="width:180px;height:180px"/>
+                                                </div>
+                                        </t>
+                                        <strong>CAE:</strong>
+                                        <t t-esc="props.data.l10n_ar_afip_auth_code"/>
+                                        <div style="margin-top:3px;">
+                                                <strong>Vto. CAE:</strong>
+                                                <t t-esc="props.data.l10n_ar_afip_auth_code_due"/>
+                                        </div>
+                                </div>
+                        </t>
+                </xpath>
+                <xpath expr="//div[hasclass('pos-receipt-taxes')]" position="replace">
+                </xpath>
+                <xpath expr="//div[hasclass('pos-receipt-amount')]" position="before">
+                        <t t-set='imp_inclu' t-value='props.data.env.pos.config.iface_tax_included === "total"' />
+        
+                <t t-if="!imp_inclu &amp;&amp; props.data.document_type_sv.l10n_ar_letter == 'A'">
+                    <div><strong>Subtotal</strong><span t-esc='props.formatCurrency(props.data.amount_total, false)'
+                class="pos-receipt-right-align"/></div>
+                    <t t-foreach="props.data.tax_details" t-as="tax" t-key="tax.name">
+                        <div>
+                            <strong><t t-esc='tax.name' /></strong>
+                            <span t-esc='props.formatCurrency(tax.amount, false)'
+                class="pos-receipt-right-align"/>
+                        </div>
+                    </t>
+                </t>
+                <t t-if="imp_inclu &amp;&amp; props.data.document_type_sv.l10n_ar_letter == 'A'">
+                        
+                    <div><strong>Subtotal</strong><span
+                t-esc='props.formatCurrency(props.data.total_without_tax, false)'
+                class="pos-receipt-right-align"/></div>
+                    <t t-foreach="props.data.tax_details" t-as="tax" t-key="tax.name">
+                        <div>
+                            <strong><t t-esc='tax.name' /></strong>
+                            <span t-esc='props.formatCurrency(tax.amount, false)'
+                class="pos-receipt-right-align"/>
+                        </div>
+                    </t>
+                </t>
+                </xpath>
+                
+        </t>
+
+        
+</templates>

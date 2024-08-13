@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="point_of_sale.template" xml:space="preserve">
+ <t t-name="ReceiptHeader" t-inherit="point_of_sale.ReceiptHeader" t-inherit-mode="extension">
+        
+         <xpath expr="//div[@class='pos-receipt-contact']" position="replace">
+
+            <div class="afip-info">
+                <t t-if='props.data.env.pos.get_order().move_order_id'>
+                    <div t-if="props.data.company.partner_id?.[1]" t-esc="props.data.company.partner_id[1]" />
+                    <div>CUIT: <t t-esc="props.data.company.vat"/></div>
+                    <div>Ing. Brutos: <t t-esc="props.data.env.pos.get_order().pos.company.l10n_ar_gross_income_number"/></div>
+                    <div>Inicio de actividades: <t t-esc="props.data.env.pos.get_order().pos.company.l10n_ar_afip_start_date"/></div>
+                    <!-- <div><t
+                    t-esc="props.data.env.pos.get_order().pos.company.l10n_ar_afip_responsibility_type_id[1]"/></div> -->
+                    <div>Dirección: <t t-esc="props.data.env.pos.get_order().pos.company.street"/>
+                    <t t-if="props.data.env.pos.get_order().pos.company.city">
+                        , <t t-esc="props.data.env.pos.get_order().pos.company.city"/>
+                    </t>
+                    <t t-if="props.data.env.pos.get_order().pos.company.state_id">
+                        , <t t-esc="props.data.env.pos.get_order().pos.company.state_id[1]"/>
+                    </t>
+                    <t t-if="props.data.env.pos.get_order().pos.company.country_id">
+                        , <t t-esc="props.data.env.pos.get_order().pos.company.country_id[1]"/>
+                    </t>
+                    </div>
+                </t>
+            </div>
+
+            
+            <t t-if="props.data.company.phone">
+                <div>Tel:<t t-esc="props.data.company.phone" /></div>
+            </t>
+
+        </xpath>
+         
+        </t>
+        </templates>

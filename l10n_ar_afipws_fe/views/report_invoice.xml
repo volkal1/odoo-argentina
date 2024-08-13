@@ -1,43 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-	<template id="l10n_ar_afipws_fe_report_invoice_document" inherit_id="account.document_tax_totals">
-		<xpath expr="//tr[@class='border-black o_total']/td[@class='text-end']" position="replace">
-		    	<td class="text-end">
-				<span 	t-esc="o.amount_total"
-					t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
-                	</td>
-		</xpath>
-	</template>
+    <template id="report_invoice_document" inherit_id="l10n_ar.report_invoice_document">
 
-	   <template id="qr_report_invoice_document" inherit_id="account.report_invoice_document">
-		<xpath expr="//div[@id='qrcode']" position="replace">
-	            <div class="footer" style="border: 1px solid black;" height="150px">
-	              <div class="row" style="margin-bottom: 0px !important; padding-top: 3px; padding-bottom: 3px;">
-        	        <div class="col-4" t-if="o.afip_cae">
-                	    <p/>
-	                    <p><strong> CAE: </strong><span t-field="o.afip_cae"/></p>
-        	            <p><strong> Fecha Vencimiento CAE: </strong><span t-field="o.afip_cae_due"/></p>
-		    	</div> <!-- cierra col-4 -->
-                	<div class="col-2" t-if="o.qr_code">
-	                    <p/>
-        	            <strong>Codigo QR: </strong>
-		    	</div> <!-- cierra col-2 -->
-	                <div class="col-6" t-if="o.qr_code">
-				<div id="qrcode_img" style="display: 100%;">
-					<img class="border border-dark rounded" 
-                                         	height="140" width="140"
-                                         	align="right" style='margin: 0px;padding-top:0px; backgound-color: gray;'
-						t-att-src="image_data_uri(o.qr_code)"/>
-                                   <!-- img class="border border-dark rounded"
-                                         align="right" style='margin: 0px;padding-top:0px; backgound-color: gray;'
-                                         t-att-src="'data:image/png;base64,%s' % to_text(o.qr_code)"/ -->
-                              </div>
-			</div> <!-- cierra col-6 -->
-		     </div> <!-- cierra row -->
-		  </div> <!-- cierra el footer -->
-		</xpath>
-	    </template>
-
+        <div name="comment" position="before">
+            <div t-if="o.journal_id.afip_ws == 'wsbfe'" >
+                THE PURCHASER ASSUMES THE COMMITMENT, IN THE NATURE OF AN AFFECTED DECLARATION, OF NOT EXPORTING THE PROPERTY DURING THE TERM OF THREE 3 YEARS FROM THE ACQUISITION<br/>
+            </div>
+        </div>
+        <div name="footer_left_column" position="inside">
+            <img t-if="o.afip_qr_code" t-att-src="'/report/barcode/?barcode_type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('QR', o.afip_qr_code, 300,300)" alt="qr"  style="height:100px"/>
+        </div>
+        <div name="pager" position="before">
+            <div>
+                CAE: <span t-field="o.afip_auth_code"/>
+            </div>
+            <div>
+                CAE Due Date: <span t-field="o.afip_auth_code_due"/>
+            </div>
+        </div>
+    </template>
 
 </odoo>

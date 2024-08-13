@@ -152,7 +152,6 @@ class AccountDebtLine(models.Model):
         compute='_compute_move_lines_data',
     )
     company_currency_id = fields.Many2one(
-        'res.currency',
         related='company_id.currency_id',
         string='Moneda de la empresa',
     )

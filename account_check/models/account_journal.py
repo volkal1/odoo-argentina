@@ -6,6 +6,24 @@ from odoo import models, fields, api, _
 from odoo.tools.misc import formatLang
 from ast import literal_eval
 
+#class AccountPaymentMethod(models.Model):
+#    _inherit = "account.payment.method"
+#
+#    @api.model
+#    def _get_payment_method_information(self):
+#        """
+#        Contains details about how to initialize a payment method with the code x.
+#        The contained info are:
+#            mode: Either unique if we only want one of them at a single time (payment providers for example)
+#                   or multi if we want the method on each journal fitting the domain.
+#            domain: The domain defining the eligible journals.
+#        """
+#        return {
+#            'manual': {'mode': 'multi', 'domain': [('type', 'in', ('bank', 'cash'))]},
+#            'issue_check': {'mode': 'multi', 'domain': [('type', 'in', ('bank', 'cash'))]},
+#        }
+
+
 class AccountJournal(models.Model):
     _inherit = 'account.journal'
 
@@ -15,6 +33,12 @@ class AccountJournal(models.Model):
         'Checkbooks',
         auto_join=True,
     )
+
+
+    def _default_inbound_payment_methods(self):
+        res = self.env.ref('account.account_payment_method_manual_in')
+        res += self.env.ref('l10n_latam_check.account_payment_method_new_third_party_checks')
+        return res
 
     #@api.model
     #def create(self, vals):

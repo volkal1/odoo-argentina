@@ -8,6 +8,9 @@ from odoo.exceptions import UserError,ValidationError
 from odoo.tools.safe_eval import safe_eval
 import datetime
 from datetime import date
+import logging
+
+_logger = logging.getLogger(__name__)
 
 from pyafipws.ws_sr_padron import WSSrPadronA5
 
@@ -126,8 +129,8 @@ class ResPartner(models.Model):
             raise UserError(error_msg % (
                 self.name, cuit, 'La afip no devolvió nombre'))
         vals = self.parce_census_vals(padron)
-        del vals['imp_iva_padron']
-        del vals['last_update_census']
-        del vals['imp_ganancias_padron']
+        vals.pop('imp_iva_padron', None)
+        vals.pop('last_update_census', None)
+        vals.pop('imp_ganancias_padron', None)
         self.write(vals)
         return vals
